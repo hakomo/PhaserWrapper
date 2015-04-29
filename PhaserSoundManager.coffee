@@ -8,11 +8,11 @@ do (p = Phaser.SoundManager.prototype) ->
         @sounds = {}
         for [key, urls, volume, autoDecode] in sounds
             @game.load.audio key, urls, autoDecode ? true
-            @sounds[key] = volume
+            @sounds[key] = volume ? 1
 
         for [key, urls, volume, autoDecode] in musics
             @game.load.audio key, urls, autoDecode ? true
-            @sounds[key] = volume: volume
+            @sounds[key] = volume: volume ? 1
 
     p.create = ->
         for key, sound of @sounds when typeof sound isnt 'number'
