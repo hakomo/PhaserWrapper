@@ -1,4 +1,30 @@
 
+# Phaser.Text のラッパー
+
+# constructor の text が 0 のときに表示されないバグを修正。
+
+# デフォルト style を変更。
+
+# style から @anchor を設定できる。
+# game.add.yatext 0, 0, '',
+#     anchorX: 0.5
+#     anchorY: 0.5
+# のように使う。
+# @anchor は直接さわらない。
+
+# 日本語を垂直方向の真ん中に表示できる。
+# text.y = text.my y
+# game.add.tween(text).to y: text.my y
+# のように使う。
+# @y を変更するときは @my を通す。
+# constructor のときは自動で通るので通さなくてよい。
+
+# style に lineHeight を追加。
+# game.add.yatext 0, 0, '',
+#     lineHeight: 32
+# のように使う。
+# @lineSpacing は直接さわらない。
+
 class Text extends Phaser.Text
 
     constructor: (game, x, y, text, style) ->
