@@ -1,4 +1,38 @@
 
+# Phaser.SoundManager の拡張
+
+# 音量をまとめて調節したい。だが @volume では
+# 効果音とミュージックのそれぞれをまとめて調節できない。かわりに
+# @soundVolume
+# @musicVolume
+# を使う。
+
+# ある音は固定の音量で再生することが多い。
+# 音量の記述を個々の再生箇所にばらけさせたくない。
+# sounds = [
+#     [key, urls, volume, autoDecode]
+#     [key, urls, volume, autoDecode]]
+# musics = [
+#     [key, urls, volume, autoDecode]
+#     [key, urls, volume, autoDecode]]
+# game.sound.preload sounds, musics
+# 以上を State.preload メソッド内で呼ぶ。
+# game.sound.yaplay key, volume, repeat
+# を volume を省略して呼ぶと preload 時に指定した volume で再生される。
+
+# ミュージックは同時に 2 つ以上再生しない。
+# そのためメモリの確保を抑えたい。
+# game.sound.create()
+# を State.create メソッド内で呼ぶ。
+
+# ミュージック再生時に現在再生されているミュージックを止めたい。
+# game.sound.yaplay key, volume, repeat
+# を使う。
+
+# また、ミュージックを止めたい。
+# game.sound.stop()
+# を使う。
+
 do (p = Phaser.SoundManager.prototype) ->
     p.preload = (sounds, musics) ->
         @soundVolume = 100
