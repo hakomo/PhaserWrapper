@@ -289,7 +289,7 @@ class Selection
 
     call: (func, state) ->
         (@callbacks[@index][func] or
-            @default[func])?.call @context, @, @index, state
+            @default[func])?.call @context, @, state
 
 Object.defineProperty Selection.prototype, 'index',
     get: -> @_index
