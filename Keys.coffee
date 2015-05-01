@@ -32,22 +32,22 @@
 
 class Keys
 
-    constructor: (@game) ->
+    constructor: (@game, keys = []) ->
         @Delay = 300
         @Interval = 100
-        @Keys = ['up', 'down', 'left', 'right',
-            ['z', 'enter'], ['x', 'esc'], ['c', 'shift']]
+        @keys = ['up', 'down', 'left', 'right',
+            ['z', 'enter'], ['x', 'esc']].concat keys
 
-        for key, i in @Keys when typeof key is 'string'
-            @Keys[i] = [key]
+        for key, i in @keys when typeof key is 'string'
+            @keys[i] = [key]
 
-        for keys in @Keys
-            for key in keys
+        for ks in @keys
+            for key in ks
                 @[key] = @game.input.keyboard
                     .addKey Phaser.Keyboard[key.toUpperCase()]
 
     update: ->
-        for keys in @Keys
+        for keys in @keys
             isDown = keys[0] + 'IsDown'
             justDown = keys[0] + 'JustDown'
             isHold = keys[0] + 'IsHold'
