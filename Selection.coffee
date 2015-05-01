@@ -224,12 +224,14 @@ class Selection
             @scroller.addChild displays.left
 
             if @direction
-                displays.left.position.set i // @lines * @lineWidth,
-                    i % @lines * @lineHeight
+                x = i // @lines * @lineWidth
+                y = i % @lines * @lineHeight
 
             else
-                displays.left.position.set i % @columns * @lineWidth,
-                    i // @columns * @lineHeight
+                x = i % @columns * @lineWidth
+                y = i // @columns * @lineHeight
+
+            displays.left.position.set x, displays.left.my?(y) ? y
 
     update: (keys) ->
         if @direction
