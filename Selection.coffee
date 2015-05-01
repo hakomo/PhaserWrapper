@@ -9,6 +9,8 @@ class Selection
         o or= {}
         @lineWidth = o.lineWidth or 200
         @lineHeight = o.lineHeight or 32
+        @scrollbarWidth = o.scrollbarWidth or 150
+        @scrollbarHeight = o.scrollbarHeight or 8
         @direction = (not o.direction) or o.direction is Selection.Right
         @length = a.length
 
@@ -20,9 +22,6 @@ class Selection
             @container = @game.add.graphics()
 
         @location = @calcLocation o
-
-        @scrollbarWidth = 150
-        @scrollbarHeight = 8
 
         if o.background is Selection.Light or not o.background
             @drawBackground Color.number(0.5, 0.2, 0.5),
