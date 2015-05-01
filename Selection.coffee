@@ -4,7 +4,7 @@ class Selection
     constructor: (@context, o, a) ->
         @game = @context.game
 
-        @index = 0
+        @_index = 0
         @scroll = 0
 
         o or= {}
@@ -233,13 +233,11 @@ class Selection
 
     update: (keys) ->
         if @direction
-            columns = @columns
             lines = @lines
             x = keys.horizontalHold
             y = keys.verticalHold
 
         else
-            columns = @lines
             lines = @columns
             x = keys.verticalHold
             y = keys.horizontalHold
@@ -247,22 +245,13 @@ class Selection
         n = @index // lines * lines + (@index + y) %% (@index // lines is
             @pages - 1 and @length % lines or lines)
         unless @index is n
-            @blur()
             @index = n
-            @focus()
             return
 
         n = Math.min @length - 1, (@index // lines + x) %% @pages * lines +
             @index % lines
         unless @index is n
-            @blur()
             @index = n
-
-            if n // lines < @scroll
-                @scroll = n // lines
-            else if n // lines >= @scroll + columns
-                @scroll = n // lines - columns + 1
-            @focus()
             return
 
         for callbacks in [@callbacks[@index], @default]
@@ -299,6 +288,27 @@ class Selection
     call: (func, state) ->
         (@callbacks[@index][func] or
             @default[func])?.call @context, @, @index, state
+
+Object.defineProperty Selection.prototype, 'index',
+    get: -> @_index
+    set: (n) ->
+        n = Math.min Math.max(0, n), @length - 1
+        unless @_index is n
+            @blur()
+            @_index = n
+
+            if @direction
+                columns = @columns
+                lines = @lines
+            else
+                columns = @lines
+                lines = @columns
+
+            if n // lines < @scroll
+                @scroll = n // lines
+            else if n // lines >= @scroll + columns
+                @scroll = n // lines - columns + 1
+            @focus()
 
 Selection.Right = 1
 Selection.Down = 2
