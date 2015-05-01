@@ -28,14 +28,14 @@ class Selection
         @location = @calcLocation o
 
         if o.background is Selection.Light or not o.background
-            @drawBackground Color.number(0.5, 0.2, 0.5),
+            @drawBackground o, Color.number(0.5, 0.2, 0.5),
                 Color.number 0.5, 0.5, 0.2
 
             @scrollbar = @makeScrollbar Color.number(0.5, 0.2, 0.5),
                 Color.number 0.5, 0.5, 0.2
 
         else if o.background is Selection.Dark
-            @drawBackground Color.number(0, 0, 0.2), Color.number 0, 0, 0.6
+            @drawBackground o, Color.number(0, 0, 0.2), Color.number 0, 0, 0.6
 
             @scrollbar = @makeScrollbar Color.number(0, 0, 0.2),
                 Color.number 0, 0, 0.6
@@ -45,6 +45,10 @@ class Selection
 
         if @scrollbar
             @container.addChild @scrollbar
+
+        caption = @makeOrGetCaption o
+        if caption
+            @container.addChild caption
 
         mask = @makeMask()
         @container.addChild mask
@@ -93,12 +97,13 @@ class Selection
             parent = parent.parent
 
         new Phaser.Point (o.x ? (@game.width - @width) // 2) - point.x,
-            (o.y ? (@game.height - @height) // 2) - point.y
+            (o.y ? (@game.height - @height) // 2) - point.y +
+            @lineHeight / (2 - o.y?) * o.left?
 
-    drawBackground: (fill, line) ->
+    drawBackground: (o, fill, line) ->
         @container.beginFill(fill).lineStyle 2, line
-            .drawRect @location.x + 1, @location.y - 7,
-                @width - 2, @height + 14
+            .drawRect @location.x + 1, @location.y - 7 - @lineHeight * o.left?,
+                @width - 2, @height + 14 + @lineHeight * o.left?
 
     makeScrollbar: (fill, line) ->
         if @direction
@@ -149,6 +154,19 @@ class Selection
         (out or @game.make.graphics()).beginFill(fill).lineStyle 2, line
             .drawPolygon x + lc * dx, y + lc * dy,
                 x - ly, y - lx, x + ly, y + lx,
+
+    makeOrGetCaption: (o) ->
+        if typeof o.left is 'string'
+            @game.make.yatext @location.x + 8,
+                @location.y - @lineHeight, o.left, lineHeight: @lineHeight
+
+        else if o.left instanceof PIXI.DisplayObject
+            y = @location.y - @lineHeight
+            o.left.position.set @location.x + 8, o.left.my?(y) ? y
+            o.left
+
+        else
+            null
 
     makeMask: ->
         x = 0
