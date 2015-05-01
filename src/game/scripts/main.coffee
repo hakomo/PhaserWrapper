@@ -1,0 +1,2 @@
+
+WebFontConfig.active = ->
