@@ -68,7 +68,12 @@ class Selection
             for key, callback of callbacks when typeof callback is 'function'
                 n[key] = callback
             n
-        @focus()
+
+        for callbacks in @callbacks
+            callbacks.alpha = [callbacks, @default].reduce(((c, callbacks) ->
+                c or ['horizontalHold', 'verticalHold'].reduce ((c, func) ->
+                    c or not not callbacks[func]), false), false) | 0
+        @cursor?.children[0]?.alpha = @callbacks[0].alpha
 
     getMatrix: (o) ->
         if o.columns and o.lines
@@ -268,10 +273,7 @@ class Selection
 
     focus: ->
         @cursor?.visible = true
-        @cursor?.children[0]?.alpha =
-            [@callbacks[@index], @default].reduce(((c, callbacks) ->
-                c or ['horizontalHold', 'verticalHold'].reduce ((c, func) ->
-                    c or not not callbacks[func]), false), false) | 0
+        @cursor?.children[0]?.alpha = @callbacks[@index].alpha
 
         if @direction
             @cursor?.position.set @index // @lines * @lineWidth,
