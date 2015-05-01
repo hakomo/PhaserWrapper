@@ -109,7 +109,8 @@ class Selection
 
             for i in [0...2]
                 @makeTriangle fill, line, x + i * (@scrollbarWidth + 12) - 6,
-                    y + @scrollbarHeight / 2, i * 2 - 1, 0, 16, @container
+                    y + @scrollbarHeight / 2, i * 2 - 1, 0,
+                    @scrollbarHeight * 2, @container
 
             @game.make.graphics().beginFill fill
                 .drawRect x, y,
@@ -128,7 +129,8 @@ class Selection
 
             for i in [0...2]
                 @makeTriangle fill, line, x + @scrollbarHeight / 2, y + i *
-                    (@scrollbarWidth + 12) - 6, 0, i * 2 - 1, 16, @container
+                    (@scrollbarWidth + 12) - 6, 0, i * 2 - 1,
+                    @scrollbarHeight * 2, @container
 
             @game.make.graphics().beginFill fill
                 .drawRect x, y,
