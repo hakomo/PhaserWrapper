@@ -4,7 +4,8 @@ class Selection
     constructor: (@context, o, a) ->
         @game = @context.game
 
-        @position = new Phaser.Point
+        @index = 0
+        @scroll = 0
 
         o or= {}
         @lineWidth = o.lineWidth or 200
@@ -48,12 +49,12 @@ class Selection
         mask = @makeMask()
         @container.addChild mask
 
-        @scroll = @game.add.image()
-        mask.addChild @scroll
+        @scroller = @game.add.image()
+        mask.addChild @scroller
 
         @cursor = @makeOrGetCursor o
         if @cursor
-            @scroll.addChild @cursor
+            @scroller.addChild @cursor
 
         for e, i in a
             if typeof e is 'string' or e instanceof PIXI.DisplayObject
@@ -208,12 +209,12 @@ class Selection
 
                 if index >= 0
                     tx = x * @lineWidth + style.anchorX * (@lineWidth - 16) + 8
-                    @scroll.addChild @game.add.yatext tx, 0,
+                    @scroller.addChild @game.add.yatext tx, 0,
                         texts[0..index].join('\n'), style
 
     addDisplay: (a) ->
         for displays, i in a when displays.left instanceof PIXI.DisplayObject
-            @scroll.addChild displays.left
+            @scroller.addChild displays.left
 
             if @direction
                 displays.left.position.set i // @lines * @lineWidth,
@@ -236,28 +237,28 @@ class Selection
             x = keys.verticalHold
             y = keys.horizontalHold
 
-        n = @position.x // lines * lines + (@position.x + y) %% (@position.x //
-            lines is @pages - 1 and @length % lines or lines)
-        unless @position.x is n
+        n = @index // lines * lines + (@index + y) %% (@index // lines is
+            @pages - 1 and @length % lines or lines)
+        unless @index is n
             @blur()
-            @position.x = n
+            @index = n
             @focus()
             return
 
-        n = Math.min @length - 1, (@position.x // lines + x) %%
-            @pages * lines + @position.x % lines
-        unless @position.x is n
+        n = Math.min @length - 1, (@index // lines + x) %% @pages * lines +
+            @index % lines
+        unless @index is n
             @blur()
-            @position.x = n
+            @index = n
 
-            if n // lines < @position.y
-                @position.y = n // lines
-            else if n // lines >= @position.y + columns
-                @position.y = n // lines - columns + 1
+            if n // lines < @scroll
+                @scroll = n // lines
+            else if n // lines >= @scroll + columns
+                @scroll = n // lines - columns + 1
             @focus()
             return
 
-        for callbacks in [@callbacks[@position.x], @default]
+        for callbacks in [@callbacks[@index], @default]
             for key of callbacks when keys[key]
                 @call key, keys[key]
                 return
@@ -266,24 +267,24 @@ class Selection
     focus: ->
         @cursor?.visible = true
         @cursor?.children[0]?.alpha =
-            [@callbacks[@position.x], @default].reduce(((c, callbacks) ->
+            [@callbacks[@index], @default].reduce(((c, callbacks) ->
                 c or ['horizontalHold', 'verticalHold'].reduce ((c, func) ->
                     c or not not callbacks[func]), false), false) | 0
 
         if @direction
-            @cursor?.position.set @position.x // @lines * @lineWidth,
-                @position.x % @lines * @lineHeight
-            @scroll.x = -@position.y * @lineWidth
+            @cursor?.position.set @index // @lines * @lineWidth,
+                @index % @lines * @lineHeight
+            @scroller.x = -@scroll * @lineWidth
 
-            @scrollbar?.x = @position.y * @scrollbarWidth *
+            @scrollbar?.x = @scroll * @scrollbarWidth *
                 (1 - @columns / @pages) // (@pages - @columns)
 
         else
-            @cursor?.position.set @position.x % @columns * @lineWidth,
-                @position.x // @columns * @lineHeight
-            @scroll.y = -@position.y * @lineHeight
+            @cursor?.position.set @index % @columns * @lineWidth,
+                @index // @columns * @lineHeight
+            @scroller.y = -@scroll * @lineHeight
 
-            @scrollbar?.y = @position.y * @scrollbarWidth *
+            @scrollbar?.y = @scroll * @scrollbarWidth *
                 (1 - @lines / @pages) // (@pages - @lines)
         @call 'focus'
 
@@ -292,8 +293,8 @@ class Selection
         @call 'blur'
 
     call: (func, state) ->
-        (@callbacks[@position.x][func] or
-            @default[func])?.call @context, @, @position.x, state
+        (@callbacks[@index][func] or
+            @default[func])?.call @context, @, @index, state
 
 Selection.Right = 1
 Selection.Down = 2
