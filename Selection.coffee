@@ -15,6 +15,9 @@ class Selection
         @length = a.length
 
         [@columns, @lines] = @getMatrix o
+        @pages = (@length - 1) // (if @direction then @lines else @columns) + 1
+        @width = @columns * @lineWidth
+        @height = @lines * @lineHeight
 
         if o.background instanceof PIXI.DisplayObjectContainer
             @container = o.background
@@ -83,22 +86,21 @@ class Selection
             point.add parent.x, parent.y
             parent = parent.parent
 
-        new Phaser.Point (
-            o.x ? (@game.width - @columns * @lineWidth) // 2) - point.x,
-            (o.y ? (@game.height - @lines * @lineHeight) // 2) - point.y
+        new Phaser.Point (o.x ? (@game.width - @width) // 2) - point.x,
+            (o.y ? (@game.height - @height) // 2) - point.y
 
     drawBackground: (fill, line) ->
         @container.beginFill(fill).lineStyle 2, line
             .drawRect @location.x + 1, @location.y - 7,
-                @columns * @lineWidth - 2, @lines * @lineHeight + 14
+                @width - 2, @height + 14
 
     makeScrollbar: (fill, line) ->
         if @direction
-            if (@length - 1) // @lines < @columns
+            if @pages <= @columns
                 return null
 
-            x = @location.x + (@columns * @lineWidth - @scrollbarWidth) / 2
-            y = @location.y + @lines * @lineHeight + 14
+            x = @location.x + (@width - @scrollbarWidth) / 2
+            y = @location.y + @height + 14
 
             @container.beginFill(line).lineStyle()
                 .drawRect x - 2, y - 2,
@@ -109,15 +111,15 @@ class Selection
                     y + @scrollbarHeight / 2, i * 2 - 1, 0, 16, @container
 
             @game.make.graphics().beginFill fill
-                .drawRect x, y, @scrollbarWidth * @columns //
-                    ((@length - 1) // @lines + 1), @scrollbarHeight
+                .drawRect x, y,
+                    @scrollbarWidth * @columns // @pages, @scrollbarHeight
 
         else
-            if (@length - 1) // @columns < @lines
+            if @pages <= @lines
                 return null
 
-            x = @location.x + @columns * @lineWidth + 6
-            y = @location.y + (@lines * @lineHeight - @scrollbarWidth) / 2
+            x = @location.x + @width + 6
+            y = @location.y + (@height - @scrollbarWidth) / 2
 
             @container.beginFill(line).lineStyle()
                 .drawRect x - 2, y - 2,
@@ -128,8 +130,8 @@ class Selection
                     (@scrollbarWidth + 12) - 6, 0, i * 2 - 1, 16, @container
 
             @game.make.graphics().beginFill fill
-                .drawRect x, y, @scrollbarHeight, @scrollbarWidth *
-                    @lines // ((@length - 1) // @columns + 1)
+                .drawRect x, y,
+                    @scrollbarHeight, @scrollbarWidth * @lines // @pages
 
     makeTriangle: (fill, line, x, y, dx, dy, l, out) ->
         lx = l / 2 * Math.abs dx
@@ -150,8 +152,7 @@ class Selection
 
         mask = @game.make.image @location.x, @location.y
         mask.mask = @game.add.graphics().beginFill()
-            .drawRect -x, -y,
-                @columns * @lineWidth + x * 2, @lines * @lineHeight + y * 2
+            .drawRect -x, -y, @width + x * 2, @height + y * 2
         mask.addChild mask.mask
         mask
 
@@ -187,15 +188,14 @@ class Selection
         styles = for align, i in ['left', 'center', 'right']
             align: align, anchorX: i / 2, lineHeight: @lineHeight
 
-        for x in [0..(if @direction then (a.length - 1) //
-                @lines else @columns - 1)]
+        for x in [0...(if @direction then @pages else @columns)]
             if @direction
                 textss = a[x * @lines...(x + 1) * @lines]
 
             else
-                ys = for y in [0..(a.length - 1) // @columns]
+                ys = for y in [0...@pages]
                     y * @columns + x
-                textss = (a[y] for y in ys when y < a.length)
+                textss = (a[y] for y in ys when y < @length)
 
             for style in styles
                 index = -1
@@ -237,7 +237,7 @@ class Selection
             y = keys.horizontalHold
 
         n = @position.x // lines * lines + (@position.x + y) %% (@position.x //
-            lines is (@length - 1) // lines and @length % lines or lines)
+            lines is @pages - 1 and @length % lines or lines)
         unless @position.x is n
             @blur()
             @position.x = n
@@ -245,7 +245,7 @@ class Selection
             return
 
         n = Math.min @length - 1, (@position.x // lines + x) %%
-            ((@length - 1) // lines + 1) * lines + @position.x % lines
+            @pages * lines + @position.x % lines
         unless @position.x is n
             @blur()
             @position.x = n
@@ -275,18 +275,16 @@ class Selection
                 @position.x % @lines * @lineHeight
             @scroll.x = -@position.y * @lineWidth
 
-            c = (@length - 1) // @lines + 1
             @scrollbar?.x = @position.y * @scrollbarWidth *
-                (1 - @columns / c) // (c - @columns)
+                (1 - @columns / @pages) // (@pages - @columns)
 
         else
             @cursor?.position.set @position.x % @columns * @lineWidth,
                 @position.x // @columns * @lineHeight
             @scroll.y = -@position.y * @lineHeight
 
-            l = (@length - 1) // @columns + 1
             @scrollbar?.y = @position.y * @scrollbarWidth *
-                (1 - @lines / l) // (l - @lines)
+                (1 - @lines / @pages) // (@pages - @lines)
         @call 'focus'
 
     blur: ->
