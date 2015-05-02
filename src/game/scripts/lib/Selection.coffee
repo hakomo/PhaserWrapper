@@ -281,7 +281,7 @@ class Selection
         @call 'default', keys
 
     focus: ->
-        @cursor?.visible = true
+        @cursor?.alpha = 1
         @cursor?.children[0]?.alpha = @callbacks[@index].alpha
 
         if @direction
@@ -302,7 +302,7 @@ class Selection
         @call 'focus'
 
     blur: ->
-        @cursor?.visible = false
+        @cursor?.alpha = 0
         @call 'blur'
 
     call: (func, state) ->
