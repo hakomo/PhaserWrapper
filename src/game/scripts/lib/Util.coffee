@@ -29,11 +29,16 @@ Util =
         timer = target.game.time.create()
         timer.loop duration, ((tx, ty) ->
             if @i
-                r = @i * (@i % 2 * 2 - 1) / repeat
-                target.position.set tx + x * r, ty + y * r
+                if x
+                    target.x = tx + x * @i * (@i % 2 * 2 - 1) / repeat
+                else if y
+                    target.y = ty + y * @i * (@i % 2 * 2 - 1) / repeat
                 --@i
 
             else
-                target.position.set tx, ty
+                if x
+                    target.x = tx
+                else if y
+                    target.y = ty
                 timer.destroy()), { i: repeat }, target.x, target.y
         timer.start()
