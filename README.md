@@ -3,12 +3,6 @@
 
 Install Node.js and Ruby unless installed.
 
-Install gulp.js unless installed.
-
-```sh
-npm install -g gulp
-```
-
 Install Slim unless installed.
 
 ```sh
@@ -20,7 +14,8 @@ Finally
 ```sh
 git clone https://github.com/hakomo/PhaserWrapper.git
 npm install
-gulp
+npm run
+npm run start
 ```
 
 Access http://localhost:8000/game/ from browser.
