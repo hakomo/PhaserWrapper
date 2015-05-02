@@ -50,7 +50,7 @@ gulp.task('build', ['clean', 'slim', 'stylus', 'coffee'], function() {
     gulp.src('build').pipe(webserver());
 
     gulp.src(['src/**/*', '!src/**/*.html', '!src/**/*.slim',
-            '!src/**/*.stylus', '!src/*/scripts/*'])
+            '!src/**/*.stylus', '!src/*/scripts/**/*'])
         .pipe(gulp.dest('build'));
 
     gulp.src('src/**/*.html')
