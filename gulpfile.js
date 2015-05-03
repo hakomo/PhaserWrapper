@@ -1,15 +1,15 @@
 
-del         = require('del');
-gulp        = require('gulp');
+var del         = require('del'),
+    gulp        = require('gulp'),
 
-coffee      = require('gulp-coffee');
-notify      = require('gulp-notify');
-plumber     = require('gulp-plumber');
-slim        = require('gulp-slim');
-stylus      = require('gulp-stylus');
-uglify      = require('gulp-uglify');
-usemin      = require('gulp-usemin');
-webserver   = require('gulp-webserver');
+    coffee      = require('gulp-coffee'),
+    notify      = require('gulp-notify'),
+    plumber     = require('gulp-plumber'),
+    slim        = require('gulp-slim'),
+    stylus      = require('gulp-stylus'),
+    uglify      = require('gulp-uglify'),
+    usemin      = require('gulp-usemin'),
+    webserver   = require('gulp-webserver');
 
 gulp.task('slim', function() {
     gulp.src('src/**/*.slim')
