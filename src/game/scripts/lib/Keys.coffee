@@ -35,42 +35,46 @@ class Keys
     constructor: (@game, keys = []) ->
         @Delay = 300
         @Interval = 100
-        @keys = ['up', 'down', 'left', 'right',
-            ['z', 'enter'], ['x', 'esc']].concat keys
 
-        for key, i in @keys when typeof key is 'string'
-            @keys[i] = [key]
+        @keys = for ks in ['up', 'down', 'left', 'right'
+                ['z', 'enter'], ['x', 'esc']].concat keys
+            if typeof ks is 'string'
+                ks = [ks]
 
-        for ks in @keys
             for key in ks
                 @[key] = @game.input.keyboard
                     .addKey Phaser.Keyboard[key.toUpperCase()]
 
+            keys: ks
+            isDown: ks[0] + 'IsDown'
+            justDown: ks[0] + 'JustDown'
+            isHold: ks[0] + 'IsHold'
+            timeDown: '_' + ks[0] + 'TimeDown'
+            timeHold: '_' + ks[0] + 'TimeHold'
+
     update: ->
-        for keys in @keys
-            isDown = keys[0] + 'IsDown'
-            justDown = keys[0] + 'JustDown'
-            isHold = keys[0] + 'IsHold'
-            timeDown = '_' + keys[0] + 'TimeDown'
-            timeHold = '_' + keys[0] + 'TimeHold'
-
-            @[isDown] = (@[key].isDown for key in keys)
-                .reduce (a, b) -> a or b
-
-            @[justDown] = (@[key].justDown for key in keys)
-                .reduce (a, b) -> a or b
-
+        for { keys, isDown, justDown, isHold, timeDown, timeHold } in @keys
+            @[isDown] = false
+            @[justDown] = false
             @[isHold] = false
+
+            for key in keys
+                @[isDown] or= @[key].isDown
+                @[justDown] = @[key].justDown or @[justDown]
 
             if @[justDown]
                 @[isHold] = true
 
-                @[timeDown] = (@[key].timeDown for key in keys)
-                    .reduce (a, b) -> Math.max a, b
+                @[timeDown] = 0
+                for key in keys
+                    @[timeDown] = Math.max @[timeDown], @[key].timeDown
                 @[timeHold] = @[timeDown]
 
             else if @[isDown]
-                time = if @[timeDown] is @[timeHold] then @Delay else @Interval
+                if @[timeDown] is @[timeHold]
+                    time = @Delay
+                else
+                    time = @Interval
 
                 if @game.time.elapsedSince(@[timeHold]) >= time
                     @[isHold] = true
