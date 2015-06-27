@@ -18,12 +18,15 @@ class Limited
     isMin: -> @now is @min
     isMax: -> @now >= @max
 
-    maximize: -> @now = @max
-
-    nowFrom0: -> @now - @min
     maxFrom0: -> @max - @min
 
-    proportion: -> @nowFrom0() / @maxFrom0()
+    width: (maxWidth, damage = 0, ignoreMax = false) ->
+        now = Math.min Math.max(@min, @now - damage),
+            if ignoreMax then @maxMax else @max
+        Math.ceil maxWidth * (now - @min) / @maxFrom0()
+
+    maximize: ->
+        @setNow Math.max(@now, @max), true
 
     setNow: (now, ignoreMax = false) ->
         @_now = Math.min Math.max(@min, now),
