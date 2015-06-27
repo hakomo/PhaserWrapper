@@ -1,18 +1,18 @@
 
 Util =
     jump: (target, x2, y2, t = 700, g = 0.002) ->
+        first = target.game.add.tween(target).to x: x2,
+            t, undefined, true
+
         if target.body
             gravity = target.body.gravity.clone()
             velocity = target.body.velocity.clone()
             target.body.gravity.set 0, 0
             target.body.velocity.set 0, 0
 
-        first = target.game.add.tween(target).to x: x2,
-            t, undefined, true
-        first.onComplete.addOnce (target) ->
-            if target.body
-                target.body.gravity.set gravity.x, gravity.y
-                target.body.velocity.set velocity.x, velocity.y
+            first.onComplete.addOnce ({ body }) ->
+                body.gravity.copyFrom gravity
+                body.velocity.copyFrom velocity
 
         y0 = target.y
         v0 = (y2 - y0 - t * t * g / 2) / t
