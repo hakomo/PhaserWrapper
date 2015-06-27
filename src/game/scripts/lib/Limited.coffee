@@ -8,11 +8,12 @@
 
 class Limited
 
-    constructor: ->
-        @_max = 100
-        @_maxMax = 999
-        @_min = 0
-        @_now = 100
+    constructor: (o) ->
+        o or= {}
+        @_min = o.min ? 0
+        @_maxMax = o.maxMax ? 999
+        @setNow o.now ? o.max ? 200, true
+        @max = o.max ? 200
 
     isMin: -> @now is @min
     isMax: -> @now >= @max
