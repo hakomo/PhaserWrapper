@@ -1,64 +1,35 @@
 
-# Phaser.Text のラッパー
+Phaser.GameObjectCreator.prototype.yatext = (x, y, text, style) ->
+    text = text?.toString()
 
-# constructor の text が 0 のときに表示されないバグを修正。
+    style or= {}
+    style.fill or= 'white'
+    style.font or= '18px Gennokaku'
 
-# デフォルト style を変更。
+    if style.edge
+        style.stroke = 'black'
+        style.strokeThickness = 4
 
-# style から @anchor を設定できる。
-# game.add.yatext 0, 0, '',
-#     anchorX: 0.5
-#     anchorY: 0.5
-# のように使う。
-# @anchor は直接さわらない。
+    else
+        style.shadowColor = 'black'
+        style.shadowOffsetX = 1
+        style.shadowOffsetY = 1
 
-# 日本語を垂直方向の真ん中に表示できる。
-# text.y = text.my y
-# game.add.tween(text).to y: text.my y
-# のように使う。
-# @y を変更するときは @my を通す。
-# constructor のときは自動で通るので通さなくてよい。
+    anchorX = style.anchorX or 0
+    anchorY = style.anchorY or 0
+    lineHeight = style.lineHeight or 32
 
-# style に lineHeight を追加。
-# game.add.yatext 0, 0, '',
-#     lineHeight: 32
-# のように使う。
-# @lineSpacing は直接さわらない。
+    style.align = ['left', 'center', 'right'][anchorX * 2]
 
-class Text extends Phaser.Text
+    sprite = @game.make.sprite x, y
 
-    constructor: (game, x, y, text, style) ->
-        super game, x, y, text?.toString(), style
-        @updateAnchor()
-        @y = @my y
-
-    setStyle: (style) ->
-        style or= {}
-        style.fill or= 'white'
-        style.font or= '18px Gennokaku'
-
-        style.lineHeight or= 32
-
-        super style
-        @updateAnchor()
-
-    my: (y) ->
-        Math.round y + 3 + (@style.lineHeight - @determineFontProperties(
-            @style.font).fontSize - @style.strokeThickness) * (0.5 - @anchor.y)
-
-    updateText: ->
-        @lineSpacing = @style.lineHeight - @determineFontProperties(
-            @style.font).fontSize - @style.strokeThickness
-        super
-
-    updateAnchor: ->
-        @anchor?.set @style.anchorX or 0, @style.anchorY or 0
-
-Text.Center = align: 'center', anchorX: 0.5
-Text.Right = align: 'right', anchorX: 1
+    sprite.text = @game.make.text 0, 0, text, style
+    sprite.text.lineSpacing = lineHeight - style.strokeThickness -
+        sprite.text.determineFontProperties(style.font).fontSize
+    sprite.text.y += Math.round sprite.text.lineSpacing * (0.5 - anchorY) + 3
+    sprite.text.anchor.set anchorX, anchorY
+    sprite.addChild sprite.text
+    sprite
 
 Phaser.GameObjectFactory.prototype.yatext = (x, y, text, style, group) ->
-    (group ? @world).add new Text @game, x, y, text, style
-
-Phaser.GameObjectCreator.prototype.yatext = (x, y, text, style) ->
-    new Text @game, x, y, text, style
+    (group or @world).add @game.make.yatext x, y, text, style
