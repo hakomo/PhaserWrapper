@@ -15,7 +15,7 @@ class Limited
         @_now = 100
 
     isMin: -> @now is @min
-    isMax: -> @now is @max
+    isMax: -> @now >= @max
 
     maximize: -> @now = @max
 
@@ -24,10 +24,14 @@ class Limited
 
     proportion: -> @nowFrom0() / @maxFrom0()
 
+    setNow: (now, ignoreMax = false) ->
+        @_now = Math.min Math.max(@min, now),
+            if ignoreMax then @maxMax else @max
+
 Object.defineProperty Limited.prototype, 'now',
     get: -> @_now
-    set: (value) ->
-        @_now = Math.min Math.max(@min, value), @max
+    set: (now) ->
+        @setNow now
 
 Object.defineProperty Limited.prototype, 'min',
     get: -> @_min
@@ -36,9 +40,10 @@ Object.defineProperty Limited.prototype, 'min',
 
 Object.defineProperty Limited.prototype, 'max',
     get: -> @_max
-    set: (value) ->
-        @_max = Math.min Math.max(@min, value), @maxMax
-        @now = @now
+    set: (max) ->
+        exceeds = @now > @max
+        @_max = Math.min Math.max(@min, max), @maxMax
+        @setNow @now, exceeds
 
 Object.defineProperty Limited.prototype, 'maxMax',
     get: -> @_maxMax
